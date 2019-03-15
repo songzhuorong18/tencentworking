@@ -1,0 +1,23 @@
+# 本地开发环境搭建
+
+## brew（https://brew.sh/）
+Homebrew是一款Mac OS平台下的软件包管理工具，拥有安装、卸载、更新、查看、搜索等很多实用的功能。
+
+## iterm2（https://www.iterm2.com/）+ oh my zsh（https://ohmyz.sh/）
+终端软件
+
+## node
+```
+brew install node
+```
+
+## whistle
+抓包、代理
+```
+npm i whistle -g
+```
+
+## corkscrew
+ssh代理，公司officewifi禁止了22、443等敏感端口，需要进行代理转发
+```
+brew install corkscrew
