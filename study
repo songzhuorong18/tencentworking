@@ -1,0 +1,12 @@
+9.	Git 学习
+git status 查看目前文件夹的状态
+git branch 查看本地分支
+git branch -a  查看本地与远程分支
+git checkout -b 其他分支 切换到其他分支(本地分支)
+在不同分支之间复制数据
+1.	查看目前所在的分支，切换到需要操作的分支
+2.	删除该分支下不需要的数据 git rm -rf 文件夹
+3.	提交目前的修改 git commit -m 修改信息
+4.	上传到远程分支 git push
+5.	复制其他分支的文件夹到该分支下 git checkout 分支名(origin/hugotan) 该分支下的文件/文件夹 docs/h5/**
+6.	重复第三、第四步。
