@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>whistle学习</title>
+</head>
+<body>
+<div>这是一个本地替换网页！</div>
+<script>
+  (function (console) {
+
+    console.save = function (data, filename) {
+
+      if (!data) {
+
+        console.error('Console.save: No data')
+
+        return;
+
+      }
+
+      if (!filename) filename = 'console.json'
+
+      if (typeof data === "object") {
+
+        data = JSON.stringify(data, undefined, 4)
+
+      }
+
+      var blob = new Blob([data], { type: 'text/json' }),
+
+        e = document.createEvent('MouseEvents'),
+
+        a = document.createElement('a');
+
+      a.download = filename;
+
+      a.href = window.URL.createObjectURL(blob);
+
+      a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+
+      e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+      a.dispatchEvent(e)
+
+    }
+
+  })(console);
+  const data = [{ name: 'a', children: [{ name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }] }, {
+    name: 'a',
+    children: [{ name: 'b' }, { name: 'c' }]
+  }, { name: 'a', children: [{ name: 'b' }, { name: 'c' }] }];
+  console.log(addXJTag(data, 1));
+
+  function addXJTag (data, i) {
+    if (!data || !Array.isArray(data) || !data.length) {
+      return;
+    }
+    for (let item of data) {
+      item.id = i;
+      const children = item.children;
+      if (children && children.length > 0) {
+        const { id } = addXJTag(children, ++i);
+        i = id - 1;
+      }
+      i++;
+    }
+    return {
+      data: data,
+      id: i
+    };
+  }
+
+  const navData = [
+    {
+      "name": "eee",
+      "navLevel": 1,
+      "createTime": "2019-03-15 14:53",
+      "children": [
+        {
+          "name": "ttt",
+          "navLevel": 2,
+          "createTime": "2019-03-15 18:02",
+          "children": [
+            {
+              "navLevel": 3,
+              "name": "fsdf",
+              "createTime": "2019-03-15 18:02",
+              "path": "/access-guide//hgfh/fdg/",
+              "dir": "fdg",
+              "contentType": "article"
+            }
+          ],
+          "path": "/access-guide/eee/hgfh/",
+          "dir": "hgfh",
+          "contentType": "article"
+        },
+        {
+          "name": "gfg",
+          "navLevel": 2,
+          "createTime": "2019-03-15 21:07",
+          "children": [],
+          "path": "/access-guide/eee/ghgh/",
+          "dir": "ghgh"
+        }
+      ],
+      "path": "/access-guide/eee/",
+      "dir": "eee"
+    },
+    {
+      "name": "ee",
+      "navLevel": 1,
+      "createTime": "2019-03-15 14:54",
+      "children": [
+        {
+          "name": "ee",
+          "navLevel": 2,
+          "createTime": "2019-03-15 21:50",
+          "children": [],
+          "path": ""
+        }
+      ],
+      "path": "/access-guide/wwww99o/",
+      "dir": "wwww99o"
+    },
+    {
+      "name": "uuuu",
+      "navLevel": 1,
+      "createTime": '',
+      "children": [],
+      "path": "/access-guide/bbbbbbbb/",
+      "dir": "bbbbbbbb"
+    },
+    {
+      "name": "uuuu",
+      "navLevel": 1,
+      "createTime": "2019-03-15 15:00",
+      "children": [],
+      "path": "/access-guide/bbbbbbbb/",
+      "dir": "bbbbbbbb"
+    },
+    {
+      "name": "uuuu",
+      "navLevel": 1,
+      "children": [],
+      "path": "/access-guide/bbbbbbbb/",
+      "dir": "bbbbbbbb"
+    }
+  ];
+  // const data2 = addXJTag2(navData, 1);
+  // console.log(data2);
+
+  function addXJTag2 (data, i) {
+    if (!data || !Array.isArray(data) || !data.length) {
+      return;
+    }
+    for (let item of data) {
+      if (data[0].navLevel === 1 && !data[data.length - 1].isAddFirst) {
+        data.push({
+          name: ' + 新建一级导航',
+          isAddFirst: true,
+        });
+      }
+      if (data[0].navLevel === 2 && !data[data.length - 1].isAddSecond) {
+        data.push({
+          name: ' + 新建二级导航',
+          isAddSecond: true,
+        });
+      }
+      if (data[0].navLevel === 3 && !data[data.length - 1].isAddThird) {
+        data.push({
+          name: ' + 新建三级导航',
+          isAddThird: true,
+        });
+      }
+      item.id = i;
+      const children = item.children;
+      if (children) {
+        const { id } = addXJTag2(children, ++i);
+        i = id - 1;
+      } else {
+        if (item.navLevel === 1) {
+          data.push({
+            name: ' + 新建二级导航',
+            isAddSecond: true,
+            id: i++,
+          });
+
+        }
+        if (item.navLevel === 2) {
+          data.push({
+            name: ' + 新建三级导航',
+            isAddThird: true,
+            id: i++,
+          });
+        }
+      }
+      i++;
+    }
+    return {
+      data: data,
+      id: i,
+    };
+  }
+
+  console.log(sortByCreateTime(navData));
+
+  function sortByCreateTime (tableData) {
+    tableData.sort(function (a, b) {
+      if (!a.createTime) {
+        a.createTime = ""
+      }
+      if (!b.createTime) {
+        b.createTime = ""
+      }
+      return a.createTime < b.createTime ? 1 : -1;
+    });
+    return tableData;
+  }
+
+  Date.prototype.Format = function (fmt) {
+    var o = {
+      "M+": this.getMonth() + 1,                 //月份
+      "d+": this.getDate(),                    //日
+      "h+": this.getHours(),                   //小时
+      "m+": this.getMinutes(),                 //分
+      "s+": this.getSeconds(),                 //秒
+      "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+      "S": this.getMilliseconds()             //毫秒
+    };
+    if (/(y+)/.test(fmt))
+      fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+      if (new RegExp("(" + k + ")").test(fmt))
+        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+  };
+
+  const configJson = {
+    "access-guide": {
+      "name": "接入指南",
+      "children": [
+        {
+          "name": "开发商接入",
+          "dir": "guide",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "新手指南",
+              "dir": "beginner",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/access-guide/guide/beginner/"
+            },
+            {
+              "name": "IT申请流程",
+              "dir": "apply",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/access-guide/guide/apply/"
+            }
+          ]
+        },
+        {
+          "name": "数字政务能力",
+          "dir": "digitalgd",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "API网关",
+              "dir": "api-gateway",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/api-gateway/"
+            },
+            {
+              "name": "准入网关",
+              "navLevel": 2,
+              "dir": "prepare-gateway",
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/prepare-gateway/"
+            },
+            {
+              "name": "统一身份认证",
+              "navLevel": 2,
+              "dir": "unity-auth",
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/unity-auth/"
+            },
+            {
+              "name": "电子签章",
+              "navLevel": 2,
+              "dir": "electronic-signature",
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/electronic-signature/"
+            },
+            {
+              "name": "电子证照",
+              "navLevel": 2,
+              "dir": "electronic-certification",
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/electronic-certification/"
+            },
+            {
+              "name": "物流服务",
+              "navLevel": 2,
+              "dir": "logistics-service",
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/logistics-service/"
+            },
+            {
+              "name": "事项目录",
+              "navLevel": 2,
+              "dir": "matters-directory",
+              "contentType": "article",
+              "path": "/access-guide/digitalgd/matters-directory/"
+            }
+          ]
+        },
+        {
+          "name": "微信能力",
+          "dir": "weixin",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "人脸核身",
+              "navLevel": 2,
+              "dir": "face",
+              "contentType": "article",
+              "path": "/access-guide/weixin/face/"
+            },
+            {
+              "name": "微信支付实名认证",
+              "navLevel": 2,
+              "dir": "realname",
+              "contentType": "article",
+              "path": "/access-guide/weixin/realname/"
+            },
+            {
+              "name": "非税支付",
+              "navLevel": 2,
+              "dir": "non-tax",
+              "contentType": "article",
+              "path": "/access-guide/weixin/non-tax/"
+            }
+          ]
+        },
+        {
+          "name": "政务微信能力",
+          "dir": "gov-weixin",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "统一登录",
+              "navLevel": 2,
+              "dir": "unity-login",
+              "contentType": "article",
+              "path": "/access-guide/gov-weixin/unity-login/"
+            },
+            {
+              "name": "通讯录管理",
+              "navLevel": 2,
+              "dir": "address-book",
+              "contentType": "article",
+              "path": "/access-guide/gov-weixin/address-book/"
+            },
+            {
+              "name": "应用管理",
+              "navLevel": 2,
+              "dir": "app",
+              "contentType": "article",
+              "path": "/access-guide/gov-weixin/app/"
+            }
+          ]
+        },
+        {
+          "name": "腾讯云能力",
+          "navLevel": 1,
+          "dir": "qcloud",
+          "children": [
+            {
+              "name": "腾讯位置服务",
+              "navLevel": 2,
+              "dir": "location",
+              "contentType": "article",
+              "path": "/access-guide/qcloud/location/"
+            },
+            {
+              "name": "实时音视频",
+              "navLevel": 2,
+              "dir": "real-time",
+              "contentType": "article",
+              "path": "/access-guide/qcloud/real-time/"
+            },
+            {
+              "name": "智能图像-人脸核身",
+              "navLevel": 2,
+              "dir": "face-verification",
+              "contentType": "article",
+              "path": "/access-guide/qcloud/face-verification/"
+            },
+            {
+              "name": "智能图像-人脸识别",
+              "navLevel": 2,
+              "dir": "face-recognition",
+              "contentType": "article",
+              "path": "/access-guide/qcloud/face-recognition/"
+            },
+            {
+              "name": "智能图像-文字识别",
+              "navLevel": 2,
+              "dir": "character-recognition",
+              "contentType": "article",
+              "path": "/access-guide/qcloud/character-recognition/"
+            }
+          ]
+        }
+      ]
+    },
+    "h5": {
+      "name": "H5端",
+      "children": [
+        {
+          "name": "教程指南",
+          "dir": "guide",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "概况",
+              "dir": "general-situation",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/h5/guide/general-situation/"
+            },
+            {
+              "name": "脚手架",
+              "dir": "h5-template",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/h5/guide/h5-template/"
+            }
+          ]
+        },
+        {
+          "name": "DGD-UI 组件",
+          "dir": "dgd-ui",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "基础组件",
+              "dir": "base-component",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "datetime 时间选择器",
+                  "dir": "dgd-datetime",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/base-component/dgd-datetime/"
+                },
+                {
+                  "name": "upload-img 图片上传",
+                  "dir": "dgd-upload-img",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/base-component/dgd-upload-img/"
+                },
+                {
+                  "name": "scroll-view 滚动加载",
+                  "dir": "dgd-scroll-view",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/base-component/dgd-scroll-view/"
+                },
+                {
+                  "name": "loadmore 加载更多",
+                  "dir": "loadmore",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/base-component/loadmore/"
+                },
+                {
+                  "name": "security-code 安全码",
+                  "dir": "security-code",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/base-component/security-code/"
+                },
+                {
+                  "name": "swiper 轮播图",
+                  "dir": "swiper",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/base-component/swiper/"
+                }
+              ]
+            },
+            {
+              "name": "表单组件",
+              "dir": "form",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "button 按钮",
+                  "dir": "dgd-button",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-button/"
+                },
+                {
+                  "name": "input 输入框",
+                  "dir": "dgd-input",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-input/"
+                },
+                {
+                  "name": "textarea 文本域",
+                  "dir": "dgd-textarea",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-textarea/"
+                },
+                {
+                  "name": "checkbox 多选框",
+                  "dir": "dgd-checkbox",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-checkbox/"
+                },
+                {
+                  "name": "radio 单选框",
+                  "dir": "dgd-radio",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-radio/"
+                },
+                {
+                  "name": "switch 开关",
+                  "dir": "dgd-switch",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-switch/"
+                },
+                {
+                  "name": "list 列表",
+                  "dir": "dgd-list",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/dgd-list/"
+                },
+                {
+                  "name": "menu-popover 弹出菜单",
+                  "dir": "menu-popover",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/form/menu-popover/"
+                }
+              ]
+            },
+            {
+              "name": "导航组件",
+              "dir": "navigation",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "tab 顶部tab",
+                  "dir": "tab",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/navigation/tab/"
+                },
+                {
+                  "name": "tabbar 底部tab",
+                  "dir": "tabbar",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/navigation/tabbar/"
+                }
+              ]
+            },
+            {
+              "name": "操作反馈组件",
+              "dir": "feedback",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "dialog 弹框",
+                  "dir": "dialog",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/feedback/dialog/"
+                },
+                {
+                  "name": "msg 消息提醒",
+                  "dir": "msg",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/feedback/msg/"
+                },
+                {
+                  "name": "toast 提示框",
+                  "dir": "toast",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/feedback/toast/"
+                },
+                {
+                  "name": "actionsheet 可操作单元格",
+                  "dir": "actionsheet",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/feedback/actionsheet/"
+                },
+                {
+                  "name": "loading 加载效果",
+                  "dir": "loading",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/feedback/loading/"
+                },
+                {
+                  "name": "inline-loading 区域loading",
+                  "dir": "inline-loading",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/feedback/inline-loading/"
+                }
+              ]
+            },
+            {
+              "name": "搜索组件",
+              "dir": "search",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "search 搜索栏",
+                  "dir": "search",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/h5/dgd-ui/search/search/"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "mini-program": {
+      "name": "小程序",
+      "children": [
+        {
+          "name": "开发框架",
+          "dir": "program",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "概况",
+              "dir": "sdk",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/mini-program/program/general-situation"
+            },
+            {
+              "name": "模块化开发",
+              "dir": "sdk",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/mini-program/program/module-develop/"
+            },
+            {
+              "name": "框架规范",
+              "dir": "sdk",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/mini-program/program/standard/"
+            },
+            {
+              "name": "框架能力",
+              "dir": "sdk",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "快速上手 GSD-SDK",
+                  "dir": "start",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/start"
+                },
+                {
+                  "name": "网络请求 Request",
+                  "dir": "request",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/request/"
+                },
+                {
+                  "name": "构造器扩展 Page",
+                  "dir": "page",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/page/"
+                },
+                {
+                  "name": "实用工具 Utils",
+                  "dir": "utils",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/utils/"
+                },
+                {
+                  "name": "事件通讯 Event",
+                  "dir": "event",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/event/"
+                },
+                {
+                  "name": "数据缓存 Storage",
+                  "dir": "storage",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/storage/"
+                },
+                {
+                  "name": "加密解密 Crypto",
+                  "dir": "crypto",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/crypto/"
+                },
+                {
+                  "name": "时间处理 Dayjs",
+                  "dir": "dayjs",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/dayjs/"
+                },
+                {
+                  "name": "地图位置 Map",
+                  "dir": "map",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/map/"
+                },
+                {
+                  "name": "全局状态 Wedux",
+                  "dir": "wedux",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/program/sdk/wedux/"
+                }
+              ]
+            },
+            {
+              "name": "简易教程（必看）",
+              "dir": "demo",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/mini-program/program/demo/"
+            }
+          ]
+        },
+        {
+          "name": "GSD-UI 组件库",
+          "dir": "gsd-ui",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "快速上手",
+              "dir": "start",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/mini-program/gsd-ui/start"
+            },
+            {
+              "name": "基础组件",
+              "dir": "base-component",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "g-button 按钮",
+                  "dir": "g-button",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/base-component/g-button/"
+                },
+                {
+                  "name": "g-button-group 组合按钮",
+                  "dir": "g-button-group",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/base-component/g-button-group/"
+                },
+                {
+                  "name": "g-icon 图标",
+                  "dir": "g-icon",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/base-component/g-icon/"
+                },
+                {
+                  "name": "g-cell 单元格",
+                  "dir": "g-cell",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/base-component/g-cell/"
+                },
+                {
+                  "name": "g-wrapper 外包裹",
+                  "dir": "g-wrapper",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/base-component/g-wrapper/"
+                }
+              ]
+            },
+            {
+              "name": "表单组件",
+              "dir": "form",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "g-form 表单",
+                  "dir": "g-form",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-form/"
+                },
+                {
+                  "name": "g-input 输入框",
+                  "dir": "g-input",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-input/"
+                },
+                {
+                  "name": "g-picker 选择器",
+                  "dir": "g-picker",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-picker/"
+                },
+                {
+                  "name": "g-checkbox-group 多选框",
+                  "dir": "g-checkbox-group",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-checkbox-group/"
+                },
+                {
+                  "name": "g-radio-group 单选框",
+                  "dir": "g-radio-group",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-radio-group/"
+                },
+                {
+                  "name": "g-textarea 文本框",
+                  "dir": "g-textarea",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-textarea/"
+                },
+                {
+                  "name": "g-switch 开关",
+                  "dir": "g-switch",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-switch/"
+                },
+                {
+                  "name": "g-upload 图片上传",
+                  "dir": "g-upload",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-upload/"
+                },
+                {
+                  "name": "g-form-cell 表单项",
+                  "dir": "g-form-cell",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/form/g-form-cell/"
+                }
+              ]
+            },
+            {
+              "name": "数据展示",
+              "dir": "display",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "g-title 标题",
+                  "dir": "g-title",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-title/"
+                },
+                {
+                  "name": "g-banner 轮播",
+                  "dir": "g-banner",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-banner/"
+                },
+                {
+                  "name": "g-agree 协议款",
+                  "dir": "g-agree",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-agree/"
+                },
+                {
+                  "name": "g-tips 提示",
+                  "dir": "g-tips",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-tips/"
+                },
+                {
+                  "name": "g-search 搜索框",
+                  "dir": "g-search",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-search/"
+                },
+                {
+                  "name": "g-badge 徽标",
+                  "dir": "g-badge",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-badge/"
+                },
+                {
+                  "name": "g-preview 表单预览",
+                  "dir": "g-preview",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-preview/"
+                },
+                {
+                  "name": "g-msg 结果页",
+                  "dir": "g-msg",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-msg/"
+                },
+                {
+                  "name": "g-calendar 日历",
+                  "dir": "g-calendar",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-calendar/"
+                },
+                {
+                  "name": "g-region-picker 地区选择器",
+                  "dir": "g-region-picker",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-region-picker/"
+                },
+                {
+                  "name": "g-cascader 级联选择器",
+                  "dir": "g-cascader",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-cascader/"
+                },
+                {
+                  "name": "g-index-list 索引列表",
+                  "dir": "g-index-list",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-index-list/"
+                },
+                {
+                  "name": "g-timeline 时间轴",
+                  "dir": "g-timeline",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-timeline/"
+                },
+                {
+                  "name": "g-map 地图",
+                  "dir": "g-map",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/display/g-map/"
+                }
+              ]
+            },
+            {
+              "name": "业务组件",
+              "dir": "business",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "地址组件",
+                  "dir": "g-address-map",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/gsd-ui/business/g-address-map/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "脚手架",
+          "dir": "tools",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "weshop 合包工具",
+              "dir": "cli",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/mini-program/tools/cli/"
+            }
+          ]
+        },
+        {
+          "name": "设计资源",
+          "type": "group",
+          "dir": "design",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "视觉规范",
+              "dir": "standard",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "图标",
+                  "dir": "icon",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/icon/"
+                },
+                {
+                  "name": "按钮",
+                  "dir": "button",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/button/"
+                },
+                {
+                  "name": "反馈提示",
+                  "dir": "tips",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/tips/"
+                },
+                {
+                  "name": "表单",
+                  "dir": "form",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/form/"
+                },
+                {
+                  "name": "地图",
+                  "dir": "map",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/map/"
+                },
+                {
+                  "name": "时间控件",
+                  "dir": "time",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/time/"
+                },
+                {
+                  "name": "地区选择器",
+                  "dir": "region",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/mini-program/design/standard/region/"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "web": {
+      "name": "web站点",
+      "children": [
+        {
+          "name": "教程指南",
+          "dir": "guide",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "概况",
+              "dir": "start",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/web/guide/start/"
+            }
+          ]
+        },
+        {
+          "name": "gdui 组件库",
+          "dir": "gdui",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "组件库说明",
+              "dir": "installation",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/web/gdui/installation/"
+            },
+            {
+              "name": "基础组件",
+              "dir": "basic",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "Layout - 布局",
+                  "dir": "layout",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/basic/layout/"
+                },
+                {
+                  "name": "Icon - 图标",
+                  "dir": "icon",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/basic/icon/"
+                },
+                {
+                  "name": "Button - 按钮",
+                  "dir": "button",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/basic/button/"
+                },
+                {
+                  "name": "ButtonGroup - 按钮组",
+                  "dir": "button-group",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/basic/button-group/"
+                }
+              ]
+            },
+            {
+              "name": "数据组件",
+              "dir": "data",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "Table - 表格",
+                  "dir": "table",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/data/table/"
+                },
+                {
+                  "name": "Tag - 标签",
+                  "dir": "tag",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/data/tag/"
+                }
+              ]
+            },
+            {
+              "name": "表单组件",
+              "dir": "form",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "Input - 输入框",
+                  "dir": "input",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/input/"
+                },
+                {
+                  "name": "Select - 下拉框",
+                  "dir": "select",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/select/"
+                },
+                {
+                  "name": "Radio - 单选框",
+                  "dir": "radio",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/radio/"
+                },
+                {
+                  "name": "Checkbox - 多选框",
+                  "dir": "checkbox",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/checkbox/"
+                },
+                {
+                  "name": "Switch - 开关",
+                  "dir": "switch",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/switch/"
+                },
+                {
+                  "name": "Dropdown - 下拉菜单",
+                  "dir": "dropdown",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/dropdown/"
+                },
+                {
+                  "name": "Datepicker - 日期",
+                  "dir": "datepicker",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/datepicker/"
+                },
+                {
+                  "name": "Timepicker - 时间",
+                  "dir": "timepicker",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/timepicker/"
+                },
+                {
+                  "name": "CheckList - 选项列表",
+                  "dir": "check-list",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/check-list/"
+                },
+                {
+                  "name": "CheckTabs - 选择tabs",
+                  "dir": "check-tabs",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/check-tabs/"
+                },
+                {
+                  "name": "Upload - 上传",
+                  "dir": "upload",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/upload/"
+                },
+                {
+                  "name": "Form - 表单",
+                  "dir": "form",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/form/form/"
+                }
+              ]
+            },
+            {
+              "name": "导航组件",
+              "dir": "navigation",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "NavMenu - 侧边栏",
+                  "dir": "nav-menu",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/navigation/nav-menu/"
+                },
+                {
+                  "name": "Pagination - 分页",
+                  "dir": "pagination",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/navigation/pagination/"
+                },
+                {
+                  "name": "Breadcrumb - 面包屑",
+                  "dir": "breadcrumb",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/navigation/breadcrumb/"
+                },
+                {
+                  "name": "Steps - 步骤",
+                  "dir": "steps",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/navigation/steps/"
+                },
+                {
+                  "name": "Tabs - 标签页",
+                  "dir": "tabs",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/navigation/tabs/"
+                },
+                {
+                  "name": "Timeline - 时间轴",
+                  "dir": "timeline",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/navigation/timeline/"
+                }
+              ]
+            },
+            {
+              "name": "视图组件",
+              "dir": "notice",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "MessageBox - 消息弹框",
+                  "dir": "message-box",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/notice/message-box/"
+                },
+                {
+                  "name": "Toast - 全局弱提示",
+                  "dir": "toast",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/notice/toast/"
+                }
+              ]
+            },
+            {
+              "name": "其他组件",
+              "dir": "other",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "Modal - 模态框",
+                  "dir": "modal",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/other/modal/"
+                },
+                {
+                  "name": "Poptips - 浮动提示",
+                  "dir": "poptips",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/other/poptips/"
+                },
+                {
+                  "name": "Loading - 加载中",
+                  "dir": "loading",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/gdui/other/loading/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "wefe 前端编译工具",
+          "dir": "wefe",
+          "navLevel": 1,
+          "children": [
+            {
+              "name": "工具介绍",
+              "dir": "intro",
+              "navLevel": 2,
+              "contentType": "article",
+              "path": "/web/wefe/intro/"
+            },
+            {
+              "name": "快速上手",
+              "dir": "start",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "安装使用",
+                  "dir": "install",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/start/install/"
+                },
+                {
+                  "name": "项目模版",
+                  "dir": "template",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/start/template/"
+                }
+              ]
+            },
+            {
+              "name": "实践Demo",
+              "dir": "demo",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "web项目实践",
+                  "dir": "web",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/demo/web/"
+                },
+                {
+                  "name": "ssr项目实践",
+                  "dir": "ssr",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/demo/ssr/"
+                }
+              ]
+            },
+            {
+              "name": "配置",
+              "dir": "config",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "启动配置",
+                  "dir": "intro",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/intro/"
+                },
+                {
+                  "name": "基础配置",
+                  "dir": "baseconfig",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/baseconfig/"
+                },
+                {
+                  "name": "环境配置",
+                  "dir": "env",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/env/"
+                },
+                {
+                  "name": "服务端配置",
+                  "dir": "server",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/server/"
+                },
+                {
+                  "name": "webpack配置",
+                  "dir": "webpack",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/webpack/"
+                },
+                {
+                  "name": "生命周期钩子",
+                  "dir": "lifecycle",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/lifecycle/"
+                },
+                {
+                  "name": "个性化插件",
+                  "dir": "presets",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/config/presets/"
+                }
+              ]
+            },
+            {
+              "name": "指令",
+              "dir": "command",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "options 指令参数",
+                  "dir": "options",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/options/"
+                },
+                {
+                  "name": "help 帮助信息",
+                  "dir": "help",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/help/"
+                },
+                {
+                  "name": "init 生成模板",
+                  "dir": "init",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/init/"
+                },
+                {
+                  "name": "dll 预编译文件",
+                  "dir": "dll",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/dll/"
+                },
+                {
+                  "name": "server 本地服务",
+                  "dir": "server",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/server/"
+                },
+                {
+                  "name": "build 编译输出",
+                  "dir": "build",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/build/"
+                },
+                {
+                  "name": "start 启动服务",
+                  "dir": "start",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/start/"
+                },
+                {
+                  "name": "publish 编译发布",
+                  "dir": "publish",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/command/publish/"
+                }
+              ]
+            },
+            {
+              "name": "插件",
+              "dir": "plugin",
+              "navLevel": 2,
+              "children": [
+                {
+                  "name": "wefe-fix-vue",
+                  "dir": "vue",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/vue/"
+                },
+                {
+                  "name": "wefe-fix-eslint",
+                  "dir": "eslint",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/eslint/"
+                },
+                {
+                  "name": "wefe-fix-babel",
+                  "dir": "babel",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/babel/"
+                },
+                {
+                  "name": "wefe-fix-markdown",
+                  "dir": "markdown",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/markdown/"
+                },
+                {
+                  "name": "wefe-fix-scene",
+                  "dir": "scene",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/scene/"
+                },
+                {
+                  "name": "wefe-fix-splitchunk",
+                  "dir": "splitchunk",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/splitchunk/"
+                },
+                {
+                  "name": "wefe-fix-typescript",
+                  "dir": "typescript",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/typescript/"
+                },
+                {
+                  "name": "wefe-fix-lighthouse",
+                  "dir": "lighthouse",
+                  "navLevel": 3,
+                  "contentType": "article",
+                  "path": "/web/wefe/plugin/lighthouse/"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  };
+  const originTime = new Date("October 13, 2017 11:13:00");
+  const result = addCT(configJson);
+  console.log(result);
+
+  function addCT (json) {
+    const configTag = ['access-guide', 'h5', 'mini-program', 'web'];
+    console.log(json);
+    const result = {};
+    const guide = json['access-guide'];
+    const h5 = json['h5'];
+    const program = json['mini-program'];
+    const web = json['web'];
+    const dataArr = [guide, h5, program, web];
+    let originSecond = 0;
+    let i = 0;
+    for (let item of dataArr) {
+      const children = item.children;
+      let outObj = addCreateTime(children, originSecond);
+      item.children = outObj.data;
+      result[configTag[i]] = item;
+      originSecond = outObj.seconds;
+      i++;
+    }
+    return result;
+  }
+
+  function addCreateTime (data, secs) {
+    if (!data || !Array.isArray(data) || !data.length) {
+      return;
+    }
+    for (let item of data) {
+      item.createTime = new Date(originTime.getTime() + secs * 60 * 1000).Format("yyyy-MM-dd hh:mm");
+      const children = item.children;
+      if (children && children.length > 0) {
+        const { seconds } = addCreateTime(children, ++secs);
+        secs = seconds - 1;
+      }
+      secs++;
+    }
+    return {
+      data: data,
+      seconds: secs,
+    };
+  }
+
+
+  //调用方法
+  var time1 = new Date().Format("yyyy-MM-dd hh:mm");
+
+  var time2 = new Date().Format("yyyy-MM-dd");
+  console.log(time1, time2);
+
+
+</script>
+</body>
+</html>
