@@ -1,0 +1,4 @@
+访问静态页面资源
+1.全局安装http-server服务  npm install http-server -g
+2.cd到静态资源目录下
+3.执行http-server
