@@ -74,60 +74,7 @@
   // const data2 = addXJTag2(navData, 1);
   // console.log(data2);
 
-  function addXJTag2 (data, i) {
-    if (!data || !Array.isArray(data) || !data.length) {
-      return;
-    }
-    for (let item of data) {
-      if (data[0].navLevel === 1 && !data[data.length - 1].isAddFirst) {
-        data.push({
-          name: ' + 新建一级导航',
-          isAddFirst: true,
-        });
-      }
-      if (data[0].navLevel === 2 && !data[data.length - 1].isAddSecond) {
-        data.push({
-          name: ' + 新建二级导航',
-          isAddSecond: true,
-        });
-      }
-      if (data[0].navLevel === 3 && !data[data.length - 1].isAddThird) {
-        data.push({
-          name: ' + 新建三级导航',
-          isAddThird: true,
-        });
-      }
-      item.id = i;
-      const children = item.children;
-      if (children) {
-        const { id } = addXJTag2(children, ++i);
-        i = id - 1;
-      } else {
-        if (item.navLevel === 1) {
-          data.push({
-            name: ' + 新建二级导航',
-            isAddSecond: true,
-            id: i++,
-          });
-
-        }
-        if (item.navLevel === 2) {
-          data.push({
-            name: ' + 新建三级导航',
-            isAddThird: true,
-            id: i++,
-          });
-        }
-      }
-      i++;
-    }
-    return {
-      data: data,
-      id: i,
-    };
-  }
-
-  console.log(sortByCreateTime(navData));
+  
 
   function sortByCreateTime (tableData) {
     tableData.sort(function (a, b) {
@@ -164,27 +111,6 @@
   const result = addCT(configJson);
   console.log(result);
 
-  function addCT (json) {
-    const configTag = ['access-guide', 'h5', 'mini-program', 'web'];
-    console.log(json);
-    const result = {};
-    const guide = json['access-guide'];
-    const h5 = json['h5'];
-    const program = json['mini-program'];
-    const web = json['web'];
-    const dataArr = [guide, h5, program, web];
-    let originSecond = 0;
-    let i = 0;
-    for (let item of dataArr) {
-      const children = item.children;
-      let outObj = addCreateTime(children, originSecond);
-      item.children = outObj.data;
-      result[configTag[i]] = item;
-      originSecond = outObj.seconds;
-      i++;
-    }
-    return result;
-  }
 
   function addCreateTime (data, secs) {
     if (!data || !Array.isArray(data) || !data.length) {
